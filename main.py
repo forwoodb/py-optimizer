@@ -26,6 +26,10 @@ async def optimize(body: Request):
   # convert to dataframe
   df = pd.DataFrame(data)
 
+  # Convert strings to numeric values
+  df['Salary'] = pd.to_numeric(df['Salary'])
+  df['AvgPointsPerGame'] = pd.to_numeric(df['AvgPointsPerGame'])
+
   # Split Roster Position column for players with multiple positions
   # df['Roster Position'] = df['Roster Position'].str.split('/')
   # outfield = df[df['Roster Position'] == '1B']
@@ -45,10 +49,10 @@ async def optimize(body: Request):
 
   # lists
   players = list(df['Name'])
+  points = list(df['AvgPointsPerGame'])
   salaries = list(df['Salary'])
   position_1 = list(df['Position 1'])
   position_2 = list(df['Position 2'])
-  points = list(df['AvgPointsPerGame'])
 
   # dictionaries to associate values with players
   player_salaries = dict(zip(players, salaries))
@@ -59,11 +63,18 @@ async def optimize(body: Request):
   prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
   SALARY_CAP = 50000
 
+  use_vars = pulp.LpVariable.dicts('Player', players, cat='Binary')
+
+  prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
+  prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
+
+  prob.solve()
+
   pd.set_option('display.max_columns', None)
   # pd.set_option('display.max_rows', None)
-  print(df)
+  print(pulp.value(prob.objective))
   # print("Python data:  ", data)
-  return df.to_dict(orient='records')
+  # return prob.status.to_dict(orient='records')
 
 # # Server
 # @app.get('/')
