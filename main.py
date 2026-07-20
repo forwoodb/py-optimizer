@@ -119,7 +119,7 @@ async def optimize(body: Request):
   prob += pulp.lpSum(use_vars[p] for p in second) == 1
   prob += pulp.lpSum(use_vars[p] for p in third) == 1
   prob += pulp.lpSum(use_vars[p] for p in short) == 1
-  prob += pulp.lpSum(use_vars[p] for p in players) == 3
+  prob += pulp.lpSum(use_vars[p] for p in outfield) == 3
 
   prob.solve()
 
