@@ -25,11 +25,16 @@ async def optimize(body: Request):
   # convert to dataframe
   df = pd.DataFrame(data)
 
-  pitcher = df[df['Roster Position'] == 'P']
+  split = df['Roster Position'].str.split('/', expand=True)
+
+  df['Position 1'] = split[0]
+  df['Position 2'] = split[1]
+
+  # pitcher = df[df['Roster Position'] == 'P']
 
   pd.set_option('display.max_columns', None)
-  # pd.set_option('display.max_rows', None)
-  print(pitcher)
+  pd.set_option('display.max_rows', None)
+  print(df)
   # print("Python data:  ", data)
   return data
 
