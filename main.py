@@ -104,12 +104,22 @@ async def optimize(body: Request):
   prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
   SALARY_CAP = 50000
 
+  # Decision Variables
   use_vars = pulp.LpVariable.dicts('Player', players, cat='Binary')
+
   # Maximize
   prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
 
   # Constraints
   prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
+  prob += pulp.lpSum(use_vars[p] for p in players) == 10
+  prob += pulp.lpSum(use_vars[p] for p in pitcher) == 2
+  prob += pulp.lpSum(use_vars[p] for p in catcher) == 1
+  prob += pulp.lpSum(use_vars[p] for p in first) == 1
+  prob += pulp.lpSum(use_vars[p] for p in second) == 1
+  prob += pulp.lpSum(use_vars[p] for p in third) == 1
+  prob += pulp.lpSum(use_vars[p] for p in short) == 1
+  prob += pulp.lpSum(use_vars[p] for p in players) == 3
 
   prob.solve()
 
