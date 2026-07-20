@@ -60,79 +60,98 @@ async def optimize(body: Request):
   player_position_2 = dict(zip(players, position_2))
   player_points = dict(zip(players, points))
 
-  # position lists
-  pitcher = []
-  catcher = []
-  first = []
-  second = []
-  third = []
-  short = []
-  outfield = []
+  # # position lists
+  # pitcher = []
+  # catcher = []
+  # first = []
+  # second = []
+  # third = []
+  # short = []
+  # outfield = []
+
+  # for p in player_position_1:
+  #   pos1 = player_position_1[p]
+  #   pos2 = player_position_2[p]
+
+  #   if pos1 == 'P'  or pos2 == 'P':
+  #     pitcher.append(p)
+  #   if pos1 == 'C'  or pos2 == 'C':
+  #     catcher.append(p)
+  #   if pos1 == '1B'  or pos2 == '1B':
+  #     first.append(p)
+  #   if pos1 == '2B'  or pos2 == '2B':
+  #     second.append(p)
+  #   if pos1 == '3B'  or pos2 == '3B':
+  #     third.append(p)
+  #   if pos1 == 'SS'  or pos2 == 'SS':
+  #     short.append(p)
+  #   if pos1 == 'OF'  or pos2 == 'OF':
+  #     outfield.append(p)
+
+  # https://gemini.google.com/app/484145b94e9b3555
+  player_eligible_positions = {}
 
   for p in player_position_1:
-    if player_position_1[p] == 'P':
-      pitcher.append(p)
-    if player_position_1[p] == 'C':
-      catcher.append(p)
-    if player_position_1[p] == '1B':
-      first.append(p)
-    if player_position_1[p] == '2B':
-      second.append(p)
-    if player_position_1[p] == '3B':
-      third.append(p)
-    if player_position_1[p] == 'SS':
-      short.append(p)
-    if player_position_1[p] == 'OF':
-      outfield.append(p)
+    pos_list = [player_position_1[p]]
 
-  for p in player_position_2:
-    if player_position_2[p] == 'P':
-      pitcher.append(p)
-    if player_position_2[p] == 'C':
-      catcher.append(p)
-    if player_position_2[p] == '1B':
-      first.append(p)
-    if player_position_2[p] == '2B':
-      second.append(p)
-    if player_position_2[p] == '3B':
-      third.append(p)
-    if player_position_2[p] == 'SS':
-      short.append(p)
-    if player_position_2[p] == 'OF':
-      outfield.append(p)
+    if player_position_2[p]:
+      pos_list.append(player_position_2[p])
+    
+    player_eligible_positions[p] = pos_list
 
-  prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
-  SALARY_CAP = 50000
+  player_pos_pairs = [
+    (p, pos) for p in players for pos in player_eligible_positions[p]
+  ]
 
-  # Decision Variables
-  use_vars = pulp.LpVariable.dicts('Player', players, cat='Binary')
+  print(player_pos_pairs)
 
-  # Maximize
-  prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
+  # # https://chatgpt.com/c/6a5dc821-4d7c-83ea-a9e6-67170ee3056e
+  # eligible = []  
 
-  # Constraints
-  prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
-  prob += pulp.lpSum(use_vars[p] for p in players) == 10
-  prob += pulp.lpSum(use_vars[p] for p in pitcher) == 2
-  prob += pulp.lpSum(use_vars[p] for p in catcher) == 1
-  prob += pulp.lpSum(use_vars[p] for p in first) == 1
-  prob += pulp.lpSum(use_vars[p] for p in second) == 1
-  prob += pulp.lpSum(use_vars[p] for p in third) == 1
-  prob += pulp.lpSum(use_vars[p] for p in short) == 1
-  prob += pulp.lpSum(use_vars[p] for p in outfield) == 3
+  # for p in players:
+  #   eligible.append((p, player_position_1[p]))
 
-  prob.solve()
+  #   if pd.notna(player_position_2[p]):
+  #     eligible.append((p, player_position_2[p]))
 
-  pd.set_option('display.max_columns', None)
-  # pd.set_option('display.max_rows', None)
-  for p in players:
-    if use_vars[p].varValue != 0:
-      print(player_position_1[p], use_vars[p].name, '=', player_points[p])
-  # print("Python data:  ", data)
-  # return prob.status.to_dict(orient='records')
+  # print(eligible)
 
-# # Server
-# @app.get('/')
-# def read_root():
-#   # print('hello world')
-#   return {'Hello': 'World'}
+
+
+#   prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
+#   SALARY_CAP = 50000
+
+#   # Decision Variables
+#   use_vars = pulp.LpVariable.dicts('Player', players, cat='Binary')
+
+#   # Maximize
+#   prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
+
+#   # Constraints
+#   prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
+#   prob += pulp.lpSum(use_vars[p] for p in players) == 10
+#   prob += pulp.lpSum(use_vars[p] for p in pitcher) == 2
+#   prob += pulp.lpSum(use_vars[p] for p in catcher) == 1
+#   prob += pulp.lpSum(use_vars[p] for p in first) == 1
+#   prob += pulp.lpSum(use_vars[p] for p in second) == 1
+#   prob += pulp.lpSum(use_vars[p] for p in third) == 1
+#   prob += pulp.lpSum(use_vars[p] for p in short) == 1
+#   prob += pulp.lpSum(use_vars[p] for p in outfield) == 3
+
+#   prob.solve()
+
+#   print(pulp.LpStatus(prob.status))
+
+#   pd.set_option('display.max_columns', None)
+#   # pd.set_option('display.max_rows', None)
+#   for p in players:
+#     if use_vars[p].varValue != 0:
+#       print(player_position_1[p], use_vars[p].name, '=', player_points[p])
+#   # print("Python data:  ", data)
+#   # return prob.status.to_dict(orient='records')
+
+# # # Server
+# # @app.get('/')
+# # def read_root():
+# #   # print('hello world')
+# #   return {'Hello': 'World'}
