@@ -60,19 +60,64 @@ async def optimize(body: Request):
   player_position_2 = dict(zip(players, position_2))
   player_points = dict(zip(players, points))
 
+  # position lists
+  pitcher = []
+  catcher = []
+  first = []
+  second = []
+  third = []
+  short = []
+  outfield = []
+
+  for p in player_position_1:
+    if player_position_1[p] == 'P':
+      pitcher.append(p)
+    if player_position_1[p] == 'C':
+      catcher.append(p)
+    if player_position_1[p] == '1B':
+      first.append(p)
+    if player_position_1[p] == '2B':
+      second.append(p)
+    if player_position_1[p] == '3B':
+      third.append(p)
+    if player_position_1[p] == 'SS':
+      short.append(p)
+    if player_position_1[p] == 'OF':
+      outfield.append(p)
+
+  for p in player_position_2:
+    if player_position_2[p] == 'P':
+      pitcher.append(p)
+    if player_position_2[p] == 'C':
+      catcher.append(p)
+    if player_position_2[p] == '1B':
+      first.append(p)
+    if player_position_2[p] == '2B':
+      second.append(p)
+    if player_position_2[p] == '3B':
+      third.append(p)
+    if player_position_2[p] == 'SS':
+      short.append(p)
+    if player_position_2[p] == 'OF':
+      outfield.append(p)
+
   prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
   SALARY_CAP = 50000
 
   use_vars = pulp.LpVariable.dicts('Player', players, cat='Binary')
-
+  # Maximize
   prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
+
+  # Constraints
   prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
 
   prob.solve()
 
   pd.set_option('display.max_columns', None)
   # pd.set_option('display.max_rows', None)
-  print(pulp.value(prob.objective))
+  for p in players:
+    if use_vars[p].varValue != 0:
+      print(player_position_1[p], use_vars[p].name, '=', player_points[p])
   # print("Python data:  ", data)
   # return prob.status.to_dict(orient='records')
 
