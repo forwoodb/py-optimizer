@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
-from pydantic import BaseModel
-from typing import List
+import pandas as pd
+# from pydantic import BaseModel
+# from typing import List
 
 app = FastAPI()
 # class Player(BaseModel):
@@ -20,8 +21,9 @@ app = FastAPI()
 @app.post('/optimize')
 async def optimize(body: Request):
   data = await body.json()
-  print(data)
-  return data
+  
+  # print("Python data:  ", data)
+  return {'Python': data}
 
 # # Server
 # @app.get('/')
