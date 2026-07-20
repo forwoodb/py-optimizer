@@ -21,9 +21,17 @@ app = FastAPI()
 @app.post('/optimize')
 async def optimize(body: Request):
   data = await body.json()
-  
+
+  # convert to dataframe
+  df = pd.DataFrame(data)
+
+  pitcher = df[df['Roster Position'] == 'P']
+
+  pd.set_option('display.max_columns', None)
+  # pd.set_option('display.max_rows', None)
+  print(pitcher)
   # print("Python data:  ", data)
-  return {'Python': data}
+  return data
 
 # # Server
 # @app.get('/')
