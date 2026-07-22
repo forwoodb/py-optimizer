@@ -20,18 +20,14 @@ async def optimize(body: Request):
   df['Position 1'] = split[0]
   df['Position 2'] = split[1]
 
-  # lists
+  # player list
   players = list(df['Name'])
-  points = list(df['AvgPointsPerGame'])
-  salaries = list(df['Salary'])
-  position_1 = list(df['Position 1'])
-  position_2 = list(df['Position 2'])
 
   # dictionaries to associate values with players
-  player_salaries = dict(zip(players, salaries))
-  player_position_1 = dict(zip(players, position_1))
-  player_position_2 = dict(zip(players, position_2))
-  player_points = dict(zip(players, points))
+  player_salaries = dict(zip(df['Name'], df['Salary']))
+  player_position_1 = dict(zip(df['Name'], df['Position 1']))
+  player_position_2 = dict(zip(df['Name'], df['Position 2']))
+  player_points = dict(zip(df['Name'], df['AvgPointsPerGame']))
 
   player_eligible_positions = {}
 
@@ -47,7 +43,7 @@ async def optimize(body: Request):
     (p, pos) for p in players for pos in player_eligible_positions[p]
   ]
 
-
+  # Pulp problem
   prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
   SALARY_CAP = 50000
 
