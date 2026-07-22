@@ -103,7 +103,7 @@ async def optimize(body: Request):
     (p, pos) for p in players for pos in player_eligible_positions[p]
   ]
 
-  print(player_pos_pairs)
+  # print(player_pos_pairs)
 
   # # https://chatgpt.com/c/6a5dc821-4d7c-83ea-a9e6-67170ee3056e
   # eligible = []  
@@ -129,8 +129,16 @@ async def optimize(body: Request):
 #   prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
   prob += pulp.lpSum(player_points[p] * use_vars[p, pos] for p, pos in player_pos_pairs)
 
-#   # Constraints
-#   prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
+  # Constraints
+
+  # Constraint: A player can be chosen only once
+  for p in players:
+    prob += pulp.lpSum(use_vars[p, pos] for pos in player_eligible_positions[p] ) <= 1
+
+  # Constrain: Salary Cap  
+  prob += pulp.lpSum(player_salaries[p] * use_vars[p, pos] for p, pos in player_pos_pairs) <= SALARY_CAP
+
+  
 #   prob += pulp.lpSum(use_vars[p] for p in players) == 10
 #   prob += pulp.lpSum(use_vars[p] for p in pitcher) == 2
 #   prob += pulp.lpSum(use_vars[p] for p in catcher) == 1
@@ -140,17 +148,31 @@ async def optimize(body: Request):
 #   prob += pulp.lpSum(use_vars[p] for p in short) == 1
 #   prob += pulp.lpSum(use_vars[p] for p in outfield) == 3
 
-#   prob.solve()
+  prob.solve()
 
 #   print(pulp.LpStatus(prob.status))
 
-#   pd.set_option('display.max_columns', None)
-#   # pd.set_option('display.max_rows', None)
-#   for p in players:
-#     if use_vars[p].varValue != 0:
-#       print(player_position_1[p], use_vars[p].name, '=', player_points[p])
-#   # print("Python data:  ", data)
-#   # return prob.status.to_dict(orient='records')
+  # pd.set_option('display.max_columns', None)
+  # pd.set_option('display.max_rows', None)
+
+  lineup = []
+
+  for p, pos in player_pos_pairs:
+    if use_vars[p, pos].varValue != 0:
+      player = {
+        "Roster Position": pos, 
+        "Name": p, 
+        "Points": player_points[p],
+        "Salary": player_salaries[p]
+      }
+      # print(pos)
+      # print(pos, p)
+      # print(player)
+      lineup.append(player)
+  # print("Python data:  ", data)
+  # return prob.status.to_dict(orient='records')
+  # print(pulp.value(prob.objective))
+  return lineup
 
 # # # Server
 # # @app.get('/')
