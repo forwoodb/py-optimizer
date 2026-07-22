@@ -118,14 +118,16 @@ async def optimize(body: Request):
 
 
 
-#   prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
-#   SALARY_CAP = 50000
+  prob = pulp.LpProblem('Draftkings', pulp.LpMaximize)
+  SALARY_CAP = 50000
 
-#   # Decision Variables
+  # Decision Variables
 #   use_vars = pulp.LpVariable.dicts('Player', players, cat='Binary')
+  use_vars = pulp.LpVariable.dicts('Roster', player_pos_pairs, cat='Binary')
 
-#   # Maximize
+#   # Objective: Maximize
 #   prob += pulp.lpSum(player_points[p] * use_vars[p] for p in players)
+  prob += pulp.lpSum(player_points[p] * use_vars[p, pos] for p, pos in player_pos_pairs)
 
 #   # Constraints
 #   prob += pulp.lpSum(player_salaries[p] * use_vars[p] for p in players) <= SALARY_CAP
