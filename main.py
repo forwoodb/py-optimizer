@@ -140,13 +140,15 @@ async def optimize(body: Request):
 
   # Constraint: Roster size
   prob += pulp.lpSum(use_vars[p, pos] for p, pos in player_pos_pairs) == 10
-#   prob += pulp.lpSum(use_vars[p] for p in pitcher) == 2
-#   prob += pulp.lpSum(use_vars[p] for p in catcher) == 1
-#   prob += pulp.lpSum(use_vars[p] for p in first) == 1
-#   prob += pulp.lpSum(use_vars[p] for p in second) == 1
-#   prob += pulp.lpSum(use_vars[p] for p in third) == 1
-#   prob += pulp.lpSum(use_vars[p] for p in short) == 1
-#   prob += pulp.lpSum(use_vars[p] for p in outfield) == 3
+
+  # Constraint:  Positions
+  prob += pulp.lpSum(use_vars[p, 'P'] for p, pos in player_pos_pairs if pos == 'P') == 2
+  prob += pulp.lpSum(use_vars[p, 'C'] for p, pos in player_pos_pairs if pos == 'C') == 1
+  prob += pulp.lpSum(use_vars[p, '1B'] for p, pos in player_pos_pairs if pos == '1B') == 1
+  prob += pulp.lpSum(use_vars[p, '2B'] for p, pos in player_pos_pairs if pos == '2B') == 1
+  prob += pulp.lpSum(use_vars[p, '3B'] for p, pos in player_pos_pairs if pos == '3B') == 1
+  prob += pulp.lpSum(use_vars[p, 'SS'] for p, pos in player_pos_pairs if pos == 'SS') == 1
+  prob += pulp.lpSum(use_vars[p, 'OF'] for p, pos in player_pos_pairs if pos == 'OF') == 3
 
   prob.solve()
 
