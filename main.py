@@ -138,7 +138,7 @@ async def optimize(body: Request):
   # Constrain: Salary Cap  
   prob += pulp.lpSum(player_salaries[p] * use_vars[p, pos] for p, pos in player_pos_pairs) <= SALARY_CAP
 
-  
+
 #   prob += pulp.lpSum(use_vars[p] for p in players) == 10
 #   prob += pulp.lpSum(use_vars[p] for p in pitcher) == 2
 #   prob += pulp.lpSum(use_vars[p] for p in catcher) == 1
